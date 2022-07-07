@@ -5,6 +5,8 @@
 </.form>
 
 <%= if @search_results != [] do %>
+<h3>Total Repos Found: <%= @total_count %></h3>
+
     <table>
     <tr>
         <th>Full Name</th>

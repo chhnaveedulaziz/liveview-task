@@ -14,5 +14,6 @@ defmodule FavRepos.Home.FavRepo do
     fav_repo
     |> cast(attrs, [:user_id, :search_result_id])
     |> validate_required([:user_id, :search_result_id])
+    |> unique_constraint([:user_id, :search_result_id], message: "You have already marked this repo as favorite")
   end
 end

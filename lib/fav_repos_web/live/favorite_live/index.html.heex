@@ -1,9 +1,9 @@
 <h1>Listing Favorite Repos</h1>
 
 <%= if @live_action in [:show] do %>
-<.modal return_to={Routes.favorite_index_path(@socket, :show, @fav_repo)}>
+<.modal return_to={Routes.favorite_index_path(@socket, :index)}>
   <.live_component
-    module={FavReposWeb.FavoriteLive.FormComponent}
+    module={FavReposWeb.FavoriteLive.ShowComponent}
     id="show-component"
     title={@page_title}
     action={@live_action}
@@ -13,6 +13,7 @@
   </.modal>
 <% end %>
 
+<h3>Total Favorite Repos: <%= @fav_repo_count %></h3>
 <table>
   <tr>
     <th>Full Name</th>

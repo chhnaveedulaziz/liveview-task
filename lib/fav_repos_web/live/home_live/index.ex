@@ -5,17 +5,22 @@ defmodule FavReposWeb.HomeLive.Index do
 
   @impl true
   def mount(_params, session, socket) do
-    socket = assign_defaults(socket, session, __MODULE__, [:handle_params, :handle_event])
-    {:ok, assign(socket, :search_results, [])}
+    socket =
+      socket
+      |> assign_defaults(session, __MODULE__, [:handle_params, :handle_event])
+      |> assign(:search_results, [])
+
+    {:ok, socket}
   end
 
   @impl true
   def handle_event("search", %{"search" => %{"search" => query}}, socket) do
-    results = Home.fetch_and_save_github_repos(query)
+    [body: body, total_count: total_count] = Home.fetch_and_save_github_repos(query)
 
     socket =
       socket
-      |> assign(:search_results, results)
+      |> assign(:search_results, body)
+      |> assign(:total_count, total_count)
 
     {:noreply, socket}
   end
@@ -34,7 +39,18 @@ defmodule FavReposWeb.HomeLive.Index do
          |> put_flash(:info, gettext("Repo added to favorites successfully"))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign(socket, changeset: changeset)}
+        if Enum.any?(changeset.errors, &unique_constraint_error?/1) do
+          {:noreply,
+          socket
+          |> put_flash(:info, gettext("Repo already added to favorites"))}
+        else
+          socket
+          |> put_flash(:error, "Could not add to favorites")
+          |> push_patch(to: Routes.home_index_path(socket, :index))
+        end
     end
   end
+
+  defp unique_constraint_error?({:user_id, {_, [constraint: :unique, constraint_name: _]}}), do: true
+  defp unique_constraint_error?(_), do: false
 end

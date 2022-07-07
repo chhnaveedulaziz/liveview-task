@@ -16,7 +16,6 @@ defmodule FavRepos.Home.SearchResult do
   def changeset(search_result, attrs) when is_list(attrs) do
     attrs
     |> Enum.map(fn x -> changeset(search_result, x) end)
-    |> IO.inspect(label: "Changesets ----------->")
   end
 
   @doc false

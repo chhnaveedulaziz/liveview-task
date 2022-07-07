@@ -15,7 +15,7 @@ defmodule FavRepos.Home do
   @expected_fields ~w(name full_name description private html_url)
   @sort "stargazers"
   @order "asc"
-  @per_page "2"
+  @per_page "20"
 
   @doc """
   Returns the list of search_results.
@@ -135,6 +135,10 @@ defmodule FavRepos.Home do
     |> Repo.preload([:user, :search_result])
   end
 
+  def count_fav_repos(user) do
+    Repo.one(from fav in FavRepo, select: count(fav.id), where: fav.user_id == ^user.id)
+  end
+
   @doc """
   Gets a single fav_repo.
 
@@ -167,6 +171,8 @@ defmodule FavRepos.Home do
     %FavRepo{}
     |> FavRepo.changeset(attrs)
     |> Repo.insert()
+    |> IO.inspect()
+
   end
 
   @doc """
@@ -217,12 +223,12 @@ defmodule FavRepos.Home do
   end
 
   def fetch_and_save_github_repos(q) do
-    search_results =
+    [body: body, total_count: total_count] = search_results =
       q
       |> search_repositories()
       |> process_response_body()
 
-    Repo.insert_all(SearchResult, search_results)
+    Repo.insert_all(SearchResult, body, on_conflict: :nothing) |> IO.inspect(label: "Inserted")
     search_results
   end
 
@@ -235,17 +241,21 @@ defmodule FavRepos.Home do
   end
 
   defp process_response_body(body) do
-    body
-    |> Poison.decode!()
-    |> Map.get("items")
-    |> Enum.map(fn x ->
-      Map.take(x, @expected_fields)
-      |> convert_map_keys_to_atoms()
-      |> Map.merge(%{
-        inserted_at: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second),
-        updated_at: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
-      })
-    end)
+    body = Poison.decode!(body)
+    total_count = Map.get(body, "total_count")
+    results =
+      body
+      |> Map.get("items")
+      |> Enum.map(fn x ->
+        Map.take(x, @expected_fields)
+        |> convert_map_keys_to_atoms()
+        |> Map.merge(%{
+          inserted_at: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second),
+          updated_at: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
+        })
+      end)
+
+    [body: results, total_count: total_count]
   end
 
   defp convert_map_keys_to_atoms(item) when is_map(item) do

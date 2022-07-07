@@ -1,4 +1,4 @@
-defmodule FavReposWeb.FavoriteLive.FormComponent do
+defmodule FavReposWeb.FavoriteLive.ShowComponent do
   use FavReposWeb, :live_component
 
   alias FavRepos.Home

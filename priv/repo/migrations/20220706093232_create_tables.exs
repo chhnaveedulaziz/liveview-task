@@ -18,5 +18,8 @@ defmodule FavRepos.Repo.Migrations.CreateFavoriteRepos do
 
       timestamps()
     end
+
+    create unique_index(:search_results, [:html_url])
+    create unique_index(:fav_repos, [:user_id, :search_result_id])
   end
 end

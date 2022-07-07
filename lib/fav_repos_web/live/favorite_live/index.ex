@@ -9,9 +9,12 @@ defmodule FavReposWeb.FavoriteLive.Index do
     socket =
       socket
       |> assign_defaults(session, __MODULE__, [:handle_params, :handle_event])
-      |> assign(:show_modal, false)
 
-    {:ok, assign(socket, :fav_repos, list_fav_repos(socket.assigns.current_user))}
+    {:ok,
+    socket
+    |> assign(:fav_repos, list_fav_repos(socket.assigns.current_user))
+    |> assign(:fav_repo_count, count_fav_repos(socket.assigns.current_user))
+    }
   end
 
   @impl true
@@ -29,10 +32,6 @@ defmodule FavReposWeb.FavoriteLive.Index do
     assign(socket, :fav_repos, list_fav_repos(socket.assigns.current_user))
   end
 
-  # def handle_event("toggle-modal", %{"fav_repo_id" => id}, socket) do
-
-  # end
-
   @impl true
   def handle_event("show", %{"fav_repo_id" => id}, socket) do
     socket = assign(socket, :show_modal, true)
@@ -49,19 +48,19 @@ defmodule FavReposWeb.FavoriteLive.Index do
       |> case do
         {:ok, _fav_repo} ->
           socket
-          |> put_flash(:info, "removed successfully")
+          |> put_flash(:info, "Removed successfully")
           |> push_redirect(to: Routes.favorite_index_path(socket, :index))
 
-        {:error, _changeset} ->
+        {:error, %Ecto.Changeset{}} ->
           socket
-          |> put_flash(:error, "not removed! something went wrong")
+          |> put_flash(:error, "Not removed! something went wrong")
           |> push_patch(to: Routes.favorite_index_path(socket, :index))
       end
 
     {:noreply, socket}
   end
 
-  defp list_fav_repos(user) do
-    Home.list_fav_repos(user)
-  end
+  defp list_fav_repos(user), do: Home.list_fav_repos(user)
+
+  defp count_fav_repos(user), do: Home.count_fav_repos(user)
 end
