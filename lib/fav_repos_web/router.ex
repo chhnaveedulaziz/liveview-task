@@ -77,8 +77,8 @@ defmodule FavReposWeb.Router do
 
     live "/home", HomeLive.Index, :index
     live "/favorites", FavoriteLive.Index, :index
-    live "/favorites/new", FavoriteLive.Index, :new
-    live "/favorites/:id", FavoriteLive.Show, :show
+    live "/favorites/:id", FavoriteLive.Index, :show
+    # live "/favorites/:id", FavoriteLive.Show, :show
 
     get "/users/settings", UserSettingsController, :edit
     put "/users/settings", UserSettingsController, :update

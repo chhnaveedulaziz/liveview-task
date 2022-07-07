@@ -10,10 +10,8 @@ defmodule FavRepos.HomeFixtures do
   def favorite_fixture(attrs \\ %{}) do
     {:ok, favorite} =
       attrs
-      |> Enum.into(%{
-
-      })
-      |> FavRepos.Home.create_favorite()
+      |> Enum.into(%{})
+      |> FavRepos.Home.createfav_repo()
 
     favorite
   end

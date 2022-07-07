@@ -1,4 +1,28 @@
-<h1>Listing Favorites</h1>
+<h1>Search GitHub Repos</h1>
 
+<.form let={f} id="search" for={:search} phx-submit="search">
+    <%= text_input f, :search, class: "input input-bordered", placeholder: gettext("Search") %> <%= submit "Search" %>
+</.form>
 
-<span><%= live_patch "New Favorite", to: Routes.favorite_index_path(@socket, :new) %></span>
+<%= if @search_results != [] do %>
+    <table>
+    <tr>
+        <th>Full Name</th>
+        <th>Name</th>
+        <th>URL</th>
+        <th>Description</th>
+        <th>Private</th>
+        <th></th>
+    </tr>
+    <%= for search_result <- @search_results do %>
+        <tr>
+        <td><%=search_result.full_name%></td>
+        <td><%=search_result.name%></td>
+        <td><%=search_result.html_url%></td>
+        <td><%=search_result.description%></td>
+        <td><%=search_result.private%></td>
+        <td><a href="#" phx-click="save" phx-value-repo_url={search_result.html_url}>Mark Favorite</a></td>
+        </tr>
+    <% end %>
+    </table>
+<% end %>

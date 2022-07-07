@@ -1,5 +1,5 @@
 defmodule FavReposWeb.FavoriteLive.Show do
-  use FavReposWeb, :live_view
+  use FavReposWeb, :live_component
 
   alias FavRepos.Home
 
@@ -13,9 +13,8 @@ defmodule FavReposWeb.FavoriteLive.Show do
     {:noreply,
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:favorite, Home.get_favorite!(id))}
+     |> assign(:fav_repo, Home.get_fav_repo!(id))}
   end
 
   defp page_title(:show), do: "Show Favorite"
-  defp page_title(:edit), do: "Edit Favorite"
 end

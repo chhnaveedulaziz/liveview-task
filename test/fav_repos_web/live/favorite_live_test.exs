@@ -8,13 +8,13 @@ defmodule FavReposWeb.FavoriteLiveTest do
   @update_attrs %{}
   @invalid_attrs %{}
 
-  defp create_favorite(_) do
+  defp createfav_repo(_) do
     favorite = favorite_fixture()
     %{favorite: favorite}
   end
 
   describe "Index" do
-    setup [:create_favorite]
+    setup [:createfav_repo]
 
     test "lists all favorites", %{conn: conn} do
       {:ok, _index_live, html} = live(conn, Routes.favorite_index_path(conn, :index))
@@ -73,7 +73,7 @@ defmodule FavReposWeb.FavoriteLiveTest do
   end
 
   describe "Show" do
-    setup [:create_favorite]
+    setup [:createfav_repo]
 
     test "displays favorite", %{conn: conn, favorite: favorite} do
       {:ok, _show_live, html} = live(conn, Routes.favorite_show_path(conn, :show, favorite))
