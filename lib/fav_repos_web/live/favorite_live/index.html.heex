@@ -1,0 +1,37 @@
+<h1>Listing Favorites</h1>
+
+<%= if @live_action in [:new, :edit] do %>
+  <.modal return_to={Routes.favorite_index_path(@socket, :index)}>
+    <.live_component
+      module={FavReposWeb.FavoriteLive.FormComponent}
+      id={@favorite.id || :new}
+      title={@page_title}
+      action={@live_action}
+      favorite={@favorite}
+      return_to={Routes.favorite_index_path(@socket, :index)}
+    />
+  </.modal>
+<% end %>
+
+<table>
+  <thead>
+    <tr>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="favorite_repos">
+    <%= for favorite <- @favorite_repos do %>
+      <tr id={"favorite-#{favorite.id}"}>
+
+        <td>
+          <span><%= live_redirect "Show", to: Routes.favorite_show_path(@socket, :show, favorite) %></span>
+          <span><%= live_patch "Edit", to: Routes.favorite_index_path(@socket, :edit, favorite) %></span>
+          <span><%= link "Delete", to: "#", phx_click: "delete", phx_value_id: favorite.id, data: [confirm: "Are you sure?"] %></span>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<span><%= live_patch "New Favorite", to: Routes.favorite_index_path(@socket, :new) %></span>
