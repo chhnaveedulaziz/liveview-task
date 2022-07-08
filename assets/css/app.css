@@ -321,11 +321,6 @@ header nav a {
     grid-template-columns: repeat(3, 1fr);
   }
 }
-@media (min-width: 1200px) {
-  .grid-view {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
 .card {
   padding: 20px;
   border: 1px solid #eeeeee;
@@ -333,6 +328,7 @@ header nav a {
   width: 100%;
   border-radius: 10px;
   position: relative;
+  padding-bottom: 90px;
 }
 .card .content {
   display: flex;
@@ -365,7 +361,7 @@ header nav a {
   border-radius: 8px;
   font-family: Arial;
   color: #ffffff;
-  width: 100%;
+  width: calc(100% - 40px);
   height: 45px;
   display: flex;
   align-items: center;
@@ -377,6 +373,8 @@ header nav a {
   border: none !important;
   padding: 10px 20px 10px 20px !important;
   text-decoration: none;
+  position: absolute;
+  bottom: 20px;
 }
 
 .pagination {
