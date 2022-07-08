@@ -7,15 +7,12 @@ defmodule FavRepos.Home do
 
   alias FavRepos.Repo
   alias FavRepos.HTTP
-  alias FavRepos.GitHubApi
   alias FavRepos.Home.FavRepo
   alias FavRepos.Home.SearchResult
 
   @github_base_url "https://api.github.com/search/repositories"
   @expected_fields ~w(name full_name description private html_url)
-  @sort "stargazers"
-  @order "asc"
-  @per_page "20"
+  @per_page "12"
 
   @doc """
   Returns the list of search_results.
@@ -128,9 +125,13 @@ defmodule FavRepos.Home do
     |> Repo.preload([:user, :search_result])
   end
 
-  def list_fav_repos(user) do
-    FavRepo
-    |> where([repo], repo.user_id == ^user.id)
+  def list_fav_repos(user, %{offset: offset, limit: limit}) do
+    query = from fav in FavRepo,
+      where: fav.user_id == ^user.id,
+      limit: ^limit,
+      offset: ^offset
+
+    query
     |> Repo.all()
     |> Repo.preload([:user, :search_result])
   end
@@ -171,7 +172,6 @@ defmodule FavRepos.Home do
     %FavRepo{}
     |> FavRepo.changeset(attrs)
     |> Repo.insert()
-    |> IO.inspect()
 
   end
 
@@ -222,19 +222,17 @@ defmodule FavRepos.Home do
     FavRepo.changeset(fav_repo, attrs)
   end
 
-  def fetch_and_save_github_repos(q) do
+  def fetch_and_save_github_repos(q, page) do
     [body: body, total_count: total_count] = search_results =
-      q
-      |> search_repositories()
+      search_repositories(q, page)
       |> process_response_body()
 
     Repo.insert_all(SearchResult, body, on_conflict: :nothing) |> IO.inspect(label: "Inserted")
     search_results
   end
 
-  defp search_repositories(q) do
-    query =
-      "?" <> "q=" <> q <> "&sort=" <> @sort <> "&order=" <> @order <> "&per_page=" <> @per_page
+  defp search_repositories(q, page) do
+    query = "?q=" <> q <> "&per_page=" <> @per_page <> "&page=" <> Integer.to_string(page)
 
     url = @github_base_url <> query
     HTTP.get(url)

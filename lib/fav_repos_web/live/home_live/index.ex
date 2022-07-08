@@ -9,18 +9,22 @@ defmodule FavReposWeb.HomeLive.Index do
       socket
       |> assign_defaults(session, __MODULE__, [:handle_params, :handle_event])
       |> assign(:search_results, [])
+      |> assign(:current_page, nil)
+      |> assign(:query, nil)
 
     {:ok, socket}
   end
 
   @impl true
   def handle_event("search", %{"search" => %{"search" => query}}, socket) do
-    [body: body, total_count: total_count] = Home.fetch_and_save_github_repos(query)
+    [body: body, total_count: total_count] = Home.fetch_and_save_github_repos(query, 1)
 
     socket =
       socket
       |> assign(:search_results, body)
       |> assign(:total_count, total_count)
+      |> assign(:current_page, 1)
+      |> assign(:query, query)
 
     {:noreply, socket}
   end
@@ -28,6 +32,32 @@ defmodule FavReposWeb.HomeLive.Index do
   @impl true
   def handle_event("save", %{"repo_url" => html_url}, socket) do
     save_fav_repo(html_url, socket)
+  end
+
+  def handle_event("next", _, socket) do
+    page = socket.assigns.current_page + 1
+    [body: body, total_count: total_count] = Home.fetch_and_save_github_repos(socket.assigns.query, page)
+
+    socket =
+      socket
+      |> assign(:search_results, body)
+      |> assign(:total_count, total_count)
+      |> assign(:current_page, page)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("previous", _, socket) do
+    page = socket.assigns.current_page - 1
+    [body: body, total_count: total_count] = Home.fetch_and_save_github_repos(socket.assigns.query, page)
+
+    socket =
+      socket
+      |> assign(:search_results, body)
+      |> assign(:total_count, total_count)
+      |> assign(:current_page, page)
+
+    {:noreply, socket}
   end
 
   defp save_fav_repo(url, socket) do

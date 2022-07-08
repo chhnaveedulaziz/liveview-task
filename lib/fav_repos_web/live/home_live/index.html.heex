@@ -1,30 +1,40 @@
-<h1>Search GitHub Repos</h1>
+<div class="container mx-auto">
+    <h2 class="top-heading">Search GitHub Repos</h2>
+    <.form let={f} id="search" for={:search} phx-submit="search" class="search-form">
+        <%= text_input f, :search, class: "input input-bordered", placeholder: gettext("Search") %> <%= submit "Search" %>
+    </.form>
 
-<.form let={f} id="search" for={:search} phx-submit="search">
-    <%= text_input f, :search, class: "input input-bordered", placeholder: gettext("Search") %> <%= submit "Search" %>
-</.form>
-
-<%= if @search_results != [] do %>
-<h3>Total Repos Found: <%= @total_count %></h3>
-
-    <table>
-    <tr>
-        <th>Full Name</th>
-        <th>Name</th>
-        <th>URL</th>
-        <th>Description</th>
-        <th>Private</th>
-        <th></th>
-    </tr>
-    <%= for search_result <- @search_results do %>
-        <tr>
-        <td><%=search_result.full_name%></td>
-        <td><%=search_result.name%></td>
-        <td><%=search_result.html_url%></td>
-        <td><%=search_result.description%></td>
-        <td><%=search_result.private%></td>
-        <td><a href="#" phx-click="save" phx-value-repo_url={search_result.html_url}>Mark Favorite</a></td>
-        </tr>
+    <%= if @search_results != [] do %>
+        <div>
+            <h3>Total Repos Found: <%= @total_count %></h3>
+        </div>
+        <div class="grid-view">
+            <%= for search_result <- @search_results do %>
+                <div class="card">
+                    <div class="content">
+                        <h3>Full Name:</h3>
+                        <p><%= search_result.full_name%></p>
+                    </div>
+                    <div class="content">
+                        <h3>Name:</h3>
+                        <p><%= search_result.name%></p>
+                    </div>
+                    <div class="content">
+                        <h3>Description:</h3>
+                        <p><%= search_result.description%></p>
+                    </div>
+                    <div class="content">
+                        <h3>URL</h3>
+                        <p><%= search_result.html_url%></p>
+                    </div>
+                    <%= if !search_result.private do %><span class="badge">Public</span><% end %>
+                    <a class="button" href="#" phx-click="save" phx-value-repo_url={search_result.html_url}>Mark Favorite</a>
+                </div>
+            <% end %>
+        </div>
+        <div class="pagination">
+            <button phx-click="previous">Prev</button>
+            <button phx-click="next">Next</button>
+        </div>
     <% end %>
-    </table>
-<% end %>
+</div>

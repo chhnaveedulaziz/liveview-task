@@ -6,7 +6,7 @@ defmodule FavRepos.Repo.Migrations.CreateFavoriteRepos do
       add :name, :string, null: false
       add :full_name, :string, null: false
       add :html_url, :string, null: false
-      add :description, :string
+      add :description, :text
       add :private, :boolean
 
       timestamps([:autogenerate])

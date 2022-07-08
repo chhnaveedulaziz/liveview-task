@@ -2,7 +2,8 @@ defmodule FavReposWeb.FavoriteLive.Index do
   use FavReposWeb, :live_view
 
   alias FavRepos.Home
-  alias FavRepos.Home.FavRepo
+
+  @pagination %{offset: 0, limit: 12}
 
   @impl true
   def mount(_params, session, socket) do
@@ -12,8 +13,9 @@ defmodule FavReposWeb.FavoriteLive.Index do
 
     {:ok,
     socket
-    |> assign(:fav_repos, list_fav_repos(socket.assigns.current_user))
+    |> assign(:fav_repos, list_fav_repos(socket.assigns.current_user, @pagination))
     |> assign(:fav_repo_count, count_fav_repos(socket.assigns.current_user))
+    |> assign(:pagination, @pagination)
     }
   end
 
@@ -29,7 +31,41 @@ defmodule FavReposWeb.FavoriteLive.Index do
   end
 
   defp apply_action(socket, :index, _params) do
-    assign(socket, :fav_repos, list_fav_repos(socket.assigns.current_user))
+    socket
+    |> assign(:fav_repos, list_fav_repos(socket.assigns.current_user, @pagination))
+    |> assign(:fav_repo_count, count_fav_repos(socket.assigns.current_user))
+    |> assign(:pagination, @pagination)
+  end
+
+  def handle_event("next", _, socket) do
+    %{offset: offset, limit: limit} = pagination = socket.assigns.pagination
+    filters =
+      pagination
+      |> Map.replace(:offset, offset + limit)
+
+
+    socket =
+      socket
+      |> assign(:fav_repo_count, count_fav_repos(socket.assigns.current_user))
+      |> assign(:fav_repos, list_fav_repos(socket.assigns.current_user, filters))
+      |> assign(:pagination, filters)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("previous", _, socket) do
+    %{offset: offset, limit: limit} = pagination = socket.assigns.pagination
+    filters =
+      pagination
+      |> Map.replace(:offset, offset - limit)
+
+    socket =
+      socket
+      |> assign(:fav_repo_count, count_fav_repos(socket.assigns.current_user))
+      |> assign(:fav_repos, list_fav_repos(socket.assigns.current_user, filters))
+      |> assign(:pagination, filters)
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -60,7 +96,7 @@ defmodule FavReposWeb.FavoriteLive.Index do
     {:noreply, socket}
   end
 
-  defp list_fav_repos(user), do: Home.list_fav_repos(user)
+  defp list_fav_repos(user, pagination), do: Home.list_fav_repos(user, pagination)
 
   defp count_fav_repos(user), do: Home.count_fav_repos(user)
 end
